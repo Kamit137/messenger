@@ -36,7 +36,7 @@ func MustLoad() *Config {
 		panic("cannot parse config: " + err.Error())
 	}
 
-	// Устанавливаем дефолтные значения вручную
+	// Устанавливаем дефолтные значения вручную/
 	if cfg.Env == "" {
 		cfg.Env = "local"
 	}

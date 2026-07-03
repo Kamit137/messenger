@@ -2,13 +2,13 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/Kamit137/messenger/gen;gen";
+option go_package = "messenger/gen;gen";
 
 service Auth {
-  rpc Register (RegisterRequest) returns (RegisterResponse);
-  rpc Login (LoginRequest) returns (LoginResponse);
-  rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse);
-  rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc IsAdmin(IsAdminRequest) returns (IsAdminResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
 }
 
 message IsAdminRequest {

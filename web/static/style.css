@@ -1,0 +1,13 @@
+:root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #101116; color: #f4f4f5; }
+main { width: min(420px, calc(100% - 32px)); padding: 32px; border: 1px solid #30313a; border-radius: 16px; background: #18191f; box-shadow: 0 20px 70px #0006; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+p { color: #b7b8c3; line-height: 1.5; }
+form { display: grid; gap: 14px; margin-top: 24px; }
+label { display: grid; gap: 6px; font-size: 14px; }
+input, button { border-radius: 9px; padding: 12px; font: inherit; }
+input { border: 1px solid #454752; background: #111218; color: inherit; }
+button { border: 0; cursor: pointer; background: #7868f6; color: white; font-weight: 700; }
+button.secondary { width: 100%; margin-top: 14px; background: transparent; color: #bdb4ff; }
+#message { min-height: 24px; margin: 16px 0 0; color: #f2c974; }

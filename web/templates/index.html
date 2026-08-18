@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main>
+      <h1 id="form-title">Войти</h1>
+      <p>Минимальная основа будущего мессенджера.</p>
+      <form id="auth-form">
+        <label>Email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Пароль <input name="password" type="password" autocomplete="current-password" minlength="1" required></label>
+        <button type="submit">Войти</button>
+      </form>
+      <button id="toggle-mode" class="secondary" type="button">Нет аккаунта? Зарегистрироваться</button>
+      <p id="message" aria-live="polite"></p>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -3,12 +3,13 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"messenger/internal/jwt"
 	"net/http"
 	"strings"
 	"time"
-	"messenger/internal/jwt"
-	
+
 	"messenger/internal/storage"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,20 +29,13 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
-
 func Register(w http.ResponseWriter, r *http.Request) {
 	req, ok := decodeJSON(w, r)
 	if !ok {
 		return
 	}
-
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-	if !validEmail(req.Email) {
-		writeError(w, http.StatusBadRequest, "invalid email")
-		return
-	}
-	if len(req.Password) < 6 {
-		writeError(w, http.StatusBadRequest, "password too short")
+	if len(req.Email) < 4 || len(req.Password) < 4 {
+		writeError(w, http.StatusBadRequest, "email or password too short")
 		return
 	}
 
@@ -61,12 +55,20 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if acceptsJSON(r) {
-		writeJSON(w, http.StatusCreated, userResponse{ID: id, Email: req.Email})
+	token, err := jwt.GenerateToken(id, req.Email)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "token generation failed")
 		return
 	}
 
-	http.Redirect(w, r, "/login?registered=true", http.StatusFound)
+	setCookie(w, token)
+
+	if acceptsJSON(r) {
+		writeJSON(w, http.StatusOK, userResponse{ID: id, Email: req.Email})
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -74,9 +76,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-
+	
 	user, err := storage.GetUserByEmail(r.Context(), req.Email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
@@ -148,27 +148,27 @@ func Me(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, userResponse{ID: user.ID, Email: user.Email})
 }
 
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 
 func decodeJSON(w http.ResponseWriter, r *http.Request) (authRequest, bool) {
 	defer r.Body.Close()
 
 	var req authRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return authRequest{}, false
 	}
 	return req, true
 }
-
+func writeError(w http.ResponseWriter, status int, msg string) {
+	writeJSON(w, status, errorResponse{Error: msg})
+}
 func writeJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
-}
-
-func writeError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, errorResponse{Error: msg})
 }
 
 func setCookie(w http.ResponseWriter, token string) {
@@ -184,9 +184,4 @@ func setCookie(w http.ResponseWriter, token string) {
 
 func acceptsJSON(r *http.Request) bool {
 	return strings.Contains(r.Header.Get("Accept"), "application/json")
-}
-
-func validEmail(email string) bool {
-	at := strings.IndexByte(email, '@')
-	return at > 0 && at < len(email)-1 && strings.Contains(email[at+1:], ".")
 }

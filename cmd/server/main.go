@@ -16,7 +16,7 @@ func main() {
 	godotenv.Load()
 
 	addr := getEnv("HTTP_ADDR", ":8080")
-	dbPath := getEnv("DATABASE_PATH", "./messenger.db")
+	dbPath := getEnv("DATABASE_PATH", "internal/storage/messenger.db")
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		log.Fatal("JWT_SECRET is required")
